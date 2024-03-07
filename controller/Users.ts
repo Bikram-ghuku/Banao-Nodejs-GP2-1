@@ -6,8 +6,8 @@ import bcrypt from "bcrypt"
 
 const register = async (req: Request, res: Response) => {
     type user = {uname: string, Pswd: string, email: string};
-    const data: user = req.body;
     try{
+        const data: user = req.body;
         const enc_pass = await bcrypt.hash(data.Pswd, 10);
         const newUser = await prisma.user.create({
             data: {
@@ -26,7 +26,12 @@ const register = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
     type loginUser = {pswd: string, uname: string} 
-    const data: loginUser= req.body;
+    const data: loginUser = {pswd: "", uname: ""}
+    try{
+        const data: loginUser= req.body;
+    }catch(error){
+        res.status(500).send(`Internal Server Error ${error}`)
+    }
     if(data.uname && data.pswd){
         try{
             const findUser = await prisma.user.findUnique({
