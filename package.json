@@ -4,7 +4,9 @@
   "description": "Basic authentication server using nodejs",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon index.js"
+    "test": " npx ts-node index.ts ",
+    "build": "npx tsc",
+    "dev": "nodemon index.js"
   },
   "author": "Bikram Ghuku",
   "license": "ISC",
