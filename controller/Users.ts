@@ -2,12 +2,13 @@ import express, {Request, Response} from "express"
 import prisma from "../services/db"
 import bcrypt from "bcrypt"
 
-
+const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
 const register = async (req: Request, res: Response) => {
     type user = {uname: string, pswd: string, email: string};
     try{
         const data: user = req.body;
+        if(!expression.test(data.email)) return res.status(403).send("Given email is not a proper email format")
         const enc_pass = await bcrypt.hash(data.pswd, 0);
         const newUser = await prisma.user.create({
             data: {
