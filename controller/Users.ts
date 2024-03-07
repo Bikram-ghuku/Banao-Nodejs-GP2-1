@@ -1,6 +1,7 @@
-import express, {Request, Response} from "express"
+import {Request, Response} from "express"
 import prisma from "../services/db"
 import bcrypt from "bcrypt"
+import axios from 'axios';
 
 const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
@@ -58,4 +59,50 @@ const login = async (req: Request, res: Response) => {
     }
 }
 
-export {register, login}
+const emailer = async (email: string, id: string) => {
+
+    const response = await axios.post(
+      'https://api.mailersend.com/v1/email',
+      {
+        'from': {
+          'email': 'info@trial-yzkq340n070gd796.mlsender.net'
+        },
+        'to': [
+          {
+            'email': email
+          }
+        ],
+        'subject': 'Hello from MailerSend!',
+        'text': 'Greetings from the team, you got this message through MailerSend.',
+        'html': 'Greetings from the team, you got this message through MailerSend.'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Authorization': `Bearer ${process.env.MAIL_API || ""}`
+        }
+      }
+    );
+    console.log(`Send email for ${id}`)
+}
+
+const forgotPswd = async (req: Request, res: Response) => {
+    type forData = {uname: string, email: string}
+    try{
+        const user: forData = req.body
+        const findUser = await prisma.user.findUnique({
+            where:{
+                userName: user.uname
+            }
+        })
+
+        if(findUser && findUser.email == user.email){
+            await emailer(user.email, findUser.id);
+        }
+        res.status(200).send("Email Sent Successfully")
+    }catch(error){
+        res.status(500).send(`Internal Server error ${error}`)
+    }
+}
+export {register, login, forgotPswd}
