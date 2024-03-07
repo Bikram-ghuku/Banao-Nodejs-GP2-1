@@ -51,3 +51,5 @@ const login = async (req: Request, res: Response) => {
         res.status(401).send("Username or password cannot be empty")
     }
 }
+
+export {register, login}
